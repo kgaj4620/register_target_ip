@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -42,9 +43,9 @@ public class LoadbancerApplication {
 	public void callTargetRegister() {
 		
 		
-		String aws_access_key_id = "ASIAX6N6XJ56BZU27LBS";
-		String aws_secret_access_key = "O2i+F5lmHTlfgtiCB9Hg7b5wartITahq50/eUWYF";
-		String aws_session_token = "IQoJb3JpZ2luX2VjEAgaCXVzLWVhc3QtMSJIMEYCIQDBCNRXK4px1XP+2mzu6u9cwZF8/OnBOyk0HYsRyAD0yAIhAJdHcPdsXKncdWGfjx9ULbcQ8izkinqQiz5XS8ozpZfEKowDCEAQAxoMNTQ2Mzk3NzA0MDYwIgwofmNW3lPdjiTrnDUq6QK6tyjSj32WpdRtUUpDXZuwfWFFkAqIO+tNMv5JK1w77l4DI/vzU2BCopbNFi64AZuS19bwjFrtQZ13pmmCKVCWf2pUKxyhlNp4JHLTiAEwT9blW+J7mBbleMNltI0YBrMDwlRiCxrHrquNbSyC7F1Oeiy0R9GwUAFqO9p7vDrwDgZdpE6azFN/sgkr0wKhFHuRfgyFZVMKaGPGHnj0BDWrhisyzLZ1zRh7y9YsxXtL+7MhLiIZjJUgPFBLWky/BqtlMh0wK56/JmLsgdTsG+EWu9jsyp4F7iXw2+iXFDavmByH4j82QLzLzCvZQiLy+yEfSC+pxvpDC9N6Ce+63RhrMR+/ztMad800N8Ek9uCWK5F1ixeXPaL3EVOrHJfrXVWZngeRdAr382/8G/NyrpXlPwBDo3UAUxN8VVdmaR0378RIbpe0LziT8bgFDch2j2MIwu6IAvmDa0CXpTgnh1qUrxQhI68hpH4IMJL5+pwGOqUBGE/F1UbdCz9TwcAW1HGFpC6yB1NNETj2w1C4kgbkNsUl3sh3mznuzlHZSNvMW/NpKkT27Rvt3J+gXwMdA3J+uZ9OQ4QiQGChoRRpwEAodi5iAAPA1f86SS9afhTofTYBWvVNaS+j7sTg7F83UEoOW+v3vQLZE7iiWUzyuTA/TFGGUJ2dbggT7xCtO9mL5owdbUihTuNlOy7ugGfc/XBiTCEOt0c6";
+//		String aws_access_key_id = "ASIAX6N6XJ56I6H7KCFW";
+//		String aws_secret_access_key = "HHS20IGkRe8jQ0yq776xXiwT1EgOpogt5JzKrzAg";
+//		String aws_session_token = "IQoJb3JpZ2luX2VjEAsaCXVzLWVhc3QtMSJIMEYCIQDLHihE0m09eBMmq5Lrgri6CXAnFNmdMinojS+qSl5CWAIhAKuIeltjMilERxFlq8g3HqKkcLCz/ogIcYUwauY6xHWTKowDCEQQAxoMNTQ2Mzk3NzA0MDYwIgyg1KFFQcPfJoFBDSUq6QJgDctM2EXj6o4XfIHamSO8qi3M6ZsVlmSgEfxxHU9AMtMuj0a270X8zu8f/4Hrhdtk0YRHBWr/v/7vSBpdYpK+RS8EM88NoQWC3kKEVFdfyH3wZm7OiW7dBhkTc3Lbn+zRiqbL9ZSUdGGGJ6vq4AZMSbqITfkL9ZytxfO/Q96UFdFX1t3VzFd1wmaK4uoERQiVDt1r0zGjt9AtE+IMvXexPpkpMLLh1Qf3CpO6Mn06HnxrrQOSzkTOywJXlLaqKvCw/UwrpSL4ERgsvmHjrOlELE39J5VzVmb01Ybnty2IIWabcOqcSDVN/CaaWy9M6yBGvrkoizipV0fmVffTDbsOdy0oFXlf3wp0yypzUh6ilHay+SI/3RoFRVA7cVEQLsu19Sk7WaSV2OMqGhmsQ99AZhNkXt8GzHhGCtL+m+uS/pPlkvXu+aOUeEFZdXD0qGy5XEYkdrBq1AtGkSC72SMJ0vUHQIYNXlxHMM7m+5wGOqUB5Elio3kgkTBH4SSIwHoMOtsUzr5qZyvX443O3QUBjTrGFYvTS/iWo+tW0sx/sP5EhpFMO7BzUbA1Elepgu0EMm+r4xXJ+RxA3ooj+WXfpUbwUPNdF0KFWY93ufsV4CTpoqf5FspDX767xEcO3Utyv5TlMtR5oIPl9nU9pfR+Tkres3FTOin9WTpFE1mbn+wLFM4geDup5ooPRoCohCEWeBTx2OHN";
 		logger.info("##### Starting........ :-"+new Date());
 		// create Object Mapper
 		ObjectMapper mapper = new ObjectMapper();
@@ -62,6 +63,7 @@ public class LoadbancerApplication {
 				logger.info(" Old ip address for " + someClassObject[i].getUrl() + " is " + oldIp);
 				String currentIp = getIpByAddressName(someClassObject[i].getUrl());
 				logger.info(" Current ip address for " + someClassObject[i].getUrl() + " is " + currentIp);
+				
 				com.sysco.loadbancer.targetgroup.TargetGroup tg = new com.sysco.loadbancer.targetgroup.TargetGroup();
 				tg.setRegion(someClassObject[i].getRegion());
 				tg.setTargetGroupName(someClassObject[i].getTargetGroupName());
@@ -73,23 +75,24 @@ public class LoadbancerApplication {
 					logger.info("Old ip is same as Current ip for url " + someClassObject[i].getUrl());
 				} else {
 					logger.info("Old ip is diffrent as Current ip for url " + someClassObject[i].getUrl());
+					flag=true;
 					try {
 						
 					
-					deRegisterTargetGroup(aws_access_key_id, aws_secret_access_key, aws_session_token,
-							someClassObject[i].getRegion(), someClassObject[i].getTargetGroupName(), oldIp);
+					deRegisterTargetGroup(someClassObject[i].getRegion(), someClassObject[i].getTargetGroupName(), oldIp);
 					} catch (Exception e) {
 						
 						logger.info("failed  deRegisterTargetGroup( " +e.getMessage());
+						
 					}
 					try {
-						registerTargetGroup(aws_access_key_id, aws_secret_access_key, aws_session_token,
-								someClassObject[i].getRegion(), someClassObject[i].getTargetGroupName(), currentIp);	
+						registerTargetGroup(someClassObject[i].getRegion(), someClassObject[i].getTargetGroupName(), currentIp);	
 					} catch (Exception e) {
 						logger.info("failed  registerTargetGroup( " +e.getMessage());
+						flag=false;
 					}
 					
-					flag=true;
+					
 				}
 			}
 			if (flag) {
@@ -102,14 +105,13 @@ public class LoadbancerApplication {
 
 	};
 
-	public RegisterTargetsResponse registerTargetGroup(String aws_access_key_id, String aws_secret_access_key,
-			String aws_session_token, String region, String targetGroupName, String ipAddress) {
-		AwsSessionCredentials awsCreds = AwsSessionCredentials.create(aws_access_key_id, aws_secret_access_key,
-				aws_session_token);
+	public RegisterTargetsResponse registerTargetGroup( String region, String targetGroupName, String ipAddress) {
+//		AwsSessionCredentials awsCreds = AwsSessionCredentials.create(aws_access_key_id, aws_secret_access_key,
+//				aws_session_token);
 		logger.info(" Inside registerTargetGroup () with region :" + region + " targetGroupName:" + targetGroupName
 				+ " and ipAddress :" + ipAddress);
 		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
-				.credentialsProvider(StaticCredentialsProvider.create(awsCreds)).region(Region.of(region)).build();
+				.credentialsProvider(ProfileCredentialsProvider.create()).region(Region.of(region)).build();
 
 		DescribeTargetGroupsResponse target = loadBalancingClient.describeTargetGroups();
 		List<TargetGroup> targetGroupList = target.targetGroups();
@@ -134,16 +136,15 @@ public class LoadbancerApplication {
 		return response;
 	}
 
-	public DeregisterTargetsResponse deRegisterTargetGroup(String aws_access_key_id, String aws_secret_access_key,
-			String aws_session_token, String region, String targetGroupName, String ipAddress) {
+	public DeregisterTargetsResponse deRegisterTargetGroup( String region, String targetGroupName, String ipAddress) {
 
 		logger.info(" Inside DeregisterTargetsResponse () with region :" + region + " targetGroupName:"
 				+ targetGroupName + " and ipAddress :" + ipAddress);
-		AwsSessionCredentials awsCreds = AwsSessionCredentials.create(aws_access_key_id, aws_secret_access_key,
-				aws_session_token);
-
+//		AwsSessionCredentials awsCreds = AwsSessionCredentials.create(aws_access_key_id, aws_secret_access_key,
+//				aws_session_token);
+		//StaticCredentialsProvider.create(awsCreds)
 		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
-				.credentialsProvider(StaticCredentialsProvider.create(awsCreds)).region(Region.of(region)).build();
+				.credentialsProvider(ProfileCredentialsProvider.create()).region(Region.of(region)).build();
 
 		DescribeTargetGroupsResponse target = loadBalancingClient.describeTargetGroups();
 		List<TargetGroup> targetGroupList = target.targetGroups();
