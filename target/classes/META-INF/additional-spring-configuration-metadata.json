@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "aws_access_key_id",
+    "type": "java.lang.String",
+    "description": "A description for 'aws_access_key_id'"
+  },
+  {
+    "name": "aws_secret_access_key",
+    "type": "java.lang.String",
+    "description": "A description for 'aws_secret_access_key'"
+  },
+  {
+    "name": "aws_session_token",
+    "type": "java.lang.String",
+    "description": "A description for 'aws_session_token'"
+  }
+]}
