@@ -62,8 +62,7 @@ public class LoadbancerApplication {
 				String oldIp = someClassObject[i].getIpAddress();
 				logger.info(" Old ip address for " + someClassObject[i].getUrl() + " is " + oldIp);
 				String currentIp = getIpByAddressName(someClassObject[i].getUrl());
-				logger.info(" Current ip address for " + someClassObject[i].getUrl() + " is " + currentIp);
-				
+				logger.info(" Current ip address for " + someClassObject[i].getUrl() + " is " + currentIp);				
 				com.sysco.loadbancer.targetgroup.TargetGroup tg = new com.sysco.loadbancer.targetgroup.TargetGroup();
 				tg.setRegion(someClassObject[i].getRegion());
 				tg.setTargetGroupName(someClassObject[i].getTargetGroupName());
@@ -110,9 +109,11 @@ public class LoadbancerApplication {
 //				aws_session_token);
 		logger.info(" Inside registerTargetGroup () with region :" + region + " targetGroupName:" + targetGroupName
 				+ " and ipAddress :" + ipAddress);
-		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
-				.credentialsProvider(ProfileCredentialsProvider.create()).region(Region.of(region)).build();
+//		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
+//				.credentialsProvider(ProfileCredentialsProvider.create()).region(Region.of(region)).build();
 
+		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
+				.region(Region.of(region)).build();
 		DescribeTargetGroupsResponse target = loadBalancingClient.describeTargetGroups();
 		List<TargetGroup> targetGroupList = target.targetGroups();
 		RegisterTargetsResponse response = null;
@@ -143,8 +144,10 @@ public class LoadbancerApplication {
 //		AwsSessionCredentials awsCreds = AwsSessionCredentials.create(aws_access_key_id, aws_secret_access_key,
 //				aws_session_token);
 		//StaticCredentialsProvider.create(awsCreds)
+//		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
+//				.credentialsProvider(ProfileCredentialsProvider.create()).region(Region.of(region)).build();
 		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
-				.credentialsProvider(ProfileCredentialsProvider.create()).region(Region.of(region)).build();
+				.region(Region.of(region)).build();
 
 		DescribeTargetGroupsResponse target = loadBalancingClient.describeTargetGroups();
 		List<TargetGroup> targetGroupList = target.targetGroups();
