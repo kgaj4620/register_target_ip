@@ -1,24 +1,23 @@
 package com.sysco.loadbancer.targetgroup;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DeregisterTargetsRequest;
@@ -28,91 +27,85 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.RegisterTarg
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RegisterTargetsResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetDescription;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @SpringBootApplication
 public class LoadbancerApplication {
 	static Logger logger = Logger.getLogger(LoadbancerApplication.class.getName());
-	
 
 	public static void main(String[] args) throws IOException {
-		SpringApplication.run(LoadbancerApplication.class, args);
-//		LoadbancerApplication lba = new LoadbancerApplication();
-//		lba.callTargetRegister();
+		//SpringApplication.run(LoadbancerApplication.class, args);
+
 
 	}
-	
+
 	@Bean
 	public void callTargetRegister() {
-		
-		
-//		String aws_access_key_id = "ASIAX6N6XJ56I6H7KCFW";
-//		String aws_secret_access_key = "HHS20IGkRe8jQ0yq776xXiwT1EgOpogt5JzKrzAg";
-//		String aws_session_token = "IQoJb3JpZ2luX2VjEAsaCXVzLWVhc3QtMSJIMEYCIQDLHihE0m09eBMmq5Lrgri6CXAnFNmdMinojS+qSl5CWAIhAKuIeltjMilERxFlq8g3HqKkcLCz/ogIcYUwauY6xHWTKowDCEQQAxoMNTQ2Mzk3NzA0MDYwIgyg1KFFQcPfJoFBDSUq6QJgDctM2EXj6o4XfIHamSO8qi3M6ZsVlmSgEfxxHU9AMtMuj0a270X8zu8f/4Hrhdtk0YRHBWr/v/7vSBpdYpK+RS8EM88NoQWC3kKEVFdfyH3wZm7OiW7dBhkTc3Lbn+zRiqbL9ZSUdGGGJ6vq4AZMSbqITfkL9ZytxfO/Q96UFdFX1t3VzFd1wmaK4uoERQiVDt1r0zGjt9AtE+IMvXexPpkpMLLh1Qf3CpO6Mn06HnxrrQOSzkTOywJXlLaqKvCw/UwrpSL4ERgsvmHjrOlELE39J5VzVmb01Ybnty2IIWabcOqcSDVN/CaaWy9M6yBGvrkoizipV0fmVffTDbsOdy0oFXlf3wp0yypzUh6ilHay+SI/3RoFRVA7cVEQLsu19Sk7WaSV2OMqGhmsQ99AZhNkXt8GzHhGCtL+m+uS/pPlkvXu+aOUeEFZdXD0qGy5XEYkdrBq1AtGkSC72SMJ0vUHQIYNXlxHMM7m+5wGOqUB5Elio3kgkTBH4SSIwHoMOtsUzr5qZyvX443O3QUBjTrGFYvTS/iWo+tW0sx/sP5EhpFMO7BzUbA1Elepgu0EMm+r4xXJ+RxA3ooj+WXfpUbwUPNdF0KFWY93ufsV4CTpoqf5FspDX767xEcO3Utyv5TlMtR5oIPl9nU9pfR+Tkres3FTOin9WTpFE1mbn+wLFM4geDup5ooPRoCohCEWeBTx2OHN";
-		logger.info("##### Starting........ :-"+new Date());
-		// create Object Mapper
-		ObjectMapper mapper = new ObjectMapper();
 
-		// read JSON file and map/convert to java POJO
-		try {
-			logger.info("##### Old  Data presnt in file are below :-");
-			com.sysco.loadbancer.targetgroup.TargetGroup[] someClassObject = mapper
-					.readValue(new File("src\\main\\resources\\Data.json"), com.sysco.loadbancer.targetgroup.TargetGroup[].class);
-			List<com.sysco.loadbancer.targetgroup.TargetGroup> list=new ArrayList<com.sysco.loadbancer.targetgroup.TargetGroup>();
-			boolean flag=false;
-			for (int i = 0; i < someClassObject.length; i++) {
-				logger.info(":- " + someClassObject[i]);
-				String oldIp = someClassObject[i].getIpAddress();
-				logger.info(" Old ip address for " + someClassObject[i].getUrl() + " is " + oldIp);
-				String currentIp = getIpByAddressName(someClassObject[i].getUrl());
-				logger.info(" Current ip address for " + someClassObject[i].getUrl() + " is " + currentIp);				
-				com.sysco.loadbancer.targetgroup.TargetGroup tg = new com.sysco.loadbancer.targetgroup.TargetGroup();
-				tg.setRegion(someClassObject[i].getRegion());
-				tg.setTargetGroupName(someClassObject[i].getTargetGroupName());
-				tg.setIpAddress(currentIp);
-				tg.setUrl(someClassObject[i].getUrl());
-				list.add(tg);
-				
-				if (oldIp.equals(currentIp)) {
-					logger.info("Old ip is same as Current ip for url " + someClassObject[i].getUrl());
-				} else {
-					logger.info("Old ip is diffrent as Current ip for url " + someClassObject[i].getUrl());
-					flag=true;
-					try {
-						
-					
-					deRegisterTargetGroup(someClassObject[i].getRegion(), someClassObject[i].getTargetGroupName(), oldIp);
-					} catch (Exception e) {
-						
-						logger.info("failed  deRegisterTargetGroup( " +e.getMessage());
-						
-					}
-					try {
-						registerTargetGroup(someClassObject[i].getRegion(), someClassObject[i].getTargetGroupName(), currentIp);	
-					} catch (Exception e) {
-						logger.info("failed  registerTargetGroup( " +e.getMessage());
-						flag=false;
-					}
-					
-					
+
+		logger.info("##### Starting........ :-" + new Date());
+
+		logger.info("##### Old  Data presnt in file are below :-");
+
+		S3Client s3Client = S3Client.builder().build();
+		// .region(Region.of("us-east-1")).build();
+		String bucketName = "targetgroupdata";
+		String keyName = "Data.json";
+		com.sysco.loadbancer.targetgroup.TargetGroup[] someClassObject = getObjectBytes(s3Client, bucketName, keyName);
+
+		List<com.sysco.loadbancer.targetgroup.TargetGroup> list = new ArrayList<com.sysco.loadbancer.targetgroup.TargetGroup>();
+		boolean flag = false;
+		for (int i = 0; i < someClassObject.length; i++) {
+			logger.info(":- " + someClassObject[i]);
+			String oldIp = someClassObject[i].getIpAddress();
+			logger.info(" Old ip address for " + someClassObject[i].getUrl() + " is " + oldIp);
+			String currentIp = getIpByAddressName(someClassObject[i].getUrl());
+			logger.info(" Current ip address for " + someClassObject[i].getUrl() + " is " + currentIp);
+			com.sysco.loadbancer.targetgroup.TargetGroup tg = new com.sysco.loadbancer.targetgroup.TargetGroup();
+			tg.setRegion(someClassObject[i].getRegion());
+			tg.setTargetGroupName(someClassObject[i].getTargetGroupName());
+			tg.setIpAddress(currentIp);
+			tg.setUrl(someClassObject[i].getUrl());
+			list.add(tg);
+
+			if (oldIp.equals(currentIp)) {
+				logger.info("Old ip is same as Current ip for url " + someClassObject[i].getUrl());
+			} else {
+				logger.info("Old ip is diffrent as Current ip for url " + someClassObject[i].getUrl());
+				flag = true;
+				try {
+
+					deRegisterTargetGroup(someClassObject[i].getRegion(), someClassObject[i].getTargetGroupName(),
+							oldIp);
+				} catch (Exception e) {
+
+					logger.info("failed  deRegisterTargetGroup( " + e.getMessage());
+
 				}
-			}
-			if (flag) {
-				addDataTofile(list);
-			}
-		} catch (IOException e) {
-			logger.info("No data presnt in file " + e.getMessage());
-		}
+				try {
+					registerTargetGroup(someClassObject[i].getRegion(), someClassObject[i].getTargetGroupName(),
+							currentIp);
+				} catch (Exception e) {
+					logger.info("failed  registerTargetGroup( " + e.getMessage());
+					flag = false;
+				}
 
+			}
+		}
+		if (flag) {
+			addDataTofile(list);
+		}
 
 	};
 
-	public RegisterTargetsResponse registerTargetGroup( String region, String targetGroupName, String ipAddress) {
-//		AwsSessionCredentials awsCreds = AwsSessionCredentials.create(aws_access_key_id, aws_secret_access_key,
-//				aws_session_token);
+	public RegisterTargetsResponse registerTargetGroup(String region, String targetGroupName, String ipAddress) {
+
 		logger.info(" Inside registerTargetGroup () with region :" + region + " targetGroupName:" + targetGroupName
 				+ " and ipAddress :" + ipAddress);
-//		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
-//				.credentialsProvider(ProfileCredentialsProvider.create()).region(Region.of(region)).build();
 
 		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
 				.region(Region.of(region)).build();
@@ -139,15 +132,10 @@ public class LoadbancerApplication {
 		return response;
 	}
 
-	public DeregisterTargetsResponse deRegisterTargetGroup( String region, String targetGroupName, String ipAddress) {
+	public DeregisterTargetsResponse deRegisterTargetGroup(String region, String targetGroupName, String ipAddress) {
 
 		logger.info(" Inside DeregisterTargetsResponse () with region :" + region + " targetGroupName:"
 				+ targetGroupName + " and ipAddress :" + ipAddress);
-//		AwsSessionCredentials awsCreds = AwsSessionCredentials.create(aws_access_key_id, aws_secret_access_key,
-//				aws_session_token);
-		//StaticCredentialsProvider.create(awsCreds)
-//		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
-//				.credentialsProvider(ProfileCredentialsProvider.create()).region(Region.of(region)).build();
 		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
 				.region(Region.of(region)).build();
 
@@ -174,21 +162,17 @@ public class LoadbancerApplication {
 	}
 
 	private static void writeUsingFileWriter(String data) {
-		File file = new File("src\\main\\resources\\Data.json");
-		FileWriter fr = null;
-		try {
-			fr = new FileWriter(file);
-			fr.write(data);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			// close resources
-			try {
-				fr.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+
+		String bucketName = "targetgroupdata";
+		String keyName = "Data.json";
+
+		S3Client client = S3Client.builder().build();
+
+		PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(keyName).build();
+
+		client.putObject(request, RequestBody.fromString(data));
+		logger.info("##### Sucessfully added data into s3 bucket:-" + data);
+
 	}
 
 	private static void addJsonDatatoFile(List<com.sysco.loadbancer.targetgroup.TargetGroup> list) {
@@ -206,9 +190,7 @@ public class LoadbancerApplication {
 		// Catch block to handle exceptions
 		catch (IOException e) {
 
-			// Display exception along with line number
-			// using printStackTrace() method
-			e.printStackTrace();
+			logger.info("##### \r\n" + "	private:-" + e.getMessage());
 		}
 	}
 
@@ -242,4 +224,36 @@ public class LoadbancerApplication {
 		}
 		return ipAddrss;
 	}
+
+	public static com.sysco.loadbancer.targetgroup.TargetGroup[] getObjectBytes(S3Client s3, String bucketName,
+			String keyName) {
+		com.sysco.loadbancer.targetgroup.TargetGroup[] someClassObject = null;
+		try {
+			GetObjectRequest objectRequest = GetObjectRequest.builder().key(keyName).bucket(bucketName).build();
+
+			ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(objectRequest);
+			byte[] data = objectBytes.asByteArray();
+			String string = new String(data, StandardCharsets.UTF_8);
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			try {
+				return someClassObject = mapper.readValue(string, com.sysco.loadbancer.targetgroup.TargetGroup[].class);
+
+			} catch (JsonMappingException e) {
+				logger.info("##### Exception while reading file from s3:-" + e.getMessage());
+			} catch (JsonProcessingException e) {
+
+				logger.info("##### Exception while reading file from s3:-" + e.getMessage());
+			}
+
+		} catch (S3Exception e) {
+
+			logger.info("##### Exception while reading file from s3:-" + e.awsErrorDetails().errorMessage());
+		}
+
+		return someClassObject;
+
+	}
+
 }
