@@ -107,8 +107,7 @@ public class LoadbancerApplication {
 		logger.info(" Inside registerTargetGroup () with region :" + region + " targetGroupName:" + targetGroupName
 				+ " and ipAddress :" + ipAddress);
 
-		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
-				.region(Region.of(region)).build();
+		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder().build();
 		DescribeTargetGroupsResponse target = loadBalancingClient.describeTargetGroups();
 		List<TargetGroup> targetGroupList = target.targetGroups();
 		RegisterTargetsResponse response = null;
@@ -136,8 +135,7 @@ public class LoadbancerApplication {
 
 		logger.info(" Inside DeregisterTargetsResponse () with region :" + region + " targetGroupName:"
 				+ targetGroupName + " and ipAddress :" + ipAddress);
-		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder()
-				.region(Region.of(region)).build();
+		ElasticLoadBalancingV2Client loadBalancingClient = ElasticLoadBalancingV2Client.builder().build();
 
 		DescribeTargetGroupsResponse target = loadBalancingClient.describeTargetGroups();
 		List<TargetGroup> targetGroupList = target.targetGroups();
