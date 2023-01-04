@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
-
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DeregisterTargetsRequest;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DeregisterTargetsResponse;
@@ -35,17 +34,21 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @SpringBootApplication
 public class LoadbancerApplication {
+	
 	static Logger logger = Logger.getLogger(LoadbancerApplication.class.getName());
+	static String bucketName = "targetgroupdata";
+	static String keyName = "Data.json"; // For lx048-poc
+	
 
+	
 	public static void main(String[] args) throws IOException {
-		//SpringApplication.run(LoadbancerApplication.class, args);
-
+	   // SpringApplication.run(LoadbancerApplication.class, args);
+		
 
 	}
 
 	@Bean
 	public void callTargetRegister() {
-
 
 		logger.info("##### Starting........ :-" + new Date());
 
@@ -53,8 +56,7 @@ public class LoadbancerApplication {
 
 		S3Client s3Client = S3Client.builder().build();
 		// .region(Region.of("us-east-1")).build();
-		String bucketName = "targetgroupdata";
-		String keyName = "Data.json";
+		
 		com.sysco.loadbancer.targetgroup.TargetGroup[] someClassObject = getObjectBytes(s3Client, bucketName, keyName);
 
 		List<com.sysco.loadbancer.targetgroup.TargetGroup> list = new ArrayList<com.sysco.loadbancer.targetgroup.TargetGroup>();
@@ -73,9 +75,9 @@ public class LoadbancerApplication {
 			list.add(tg);
 
 			if (oldIp.equals(currentIp)) {
-				logger.info("Old ip is same as Current ip for url " + someClassObject[i].getUrl());
+				logger.info("Old ip is same as Current ip for endpoint " + someClassObject[i].getUrl());
 			} else {
-				logger.info("Old ip is diffrent as Current ip for url " + someClassObject[i].getUrl());
+				logger.info("Old ip is diffrent as Current ip for endpoint " + someClassObject[i].getUrl());
 				flag = true;
 				try {
 
@@ -161,8 +163,7 @@ public class LoadbancerApplication {
 
 	private static void writeUsingFileWriter(String data) {
 
-		String bucketName = "targetgroupdata";
-		String keyName = "Data.json";
+	
 
 		S3Client client = S3Client.builder().build();
 
